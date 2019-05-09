@@ -1,5 +1,6 @@
 package com.khwilo.movieapi.controller;
 
+import com.khwilo.movieapi.dao.MovieRepository;
 import com.khwilo.movieapi.model.Movie;
 import com.khwilo.movieapi.service.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,12 +10,16 @@ import org.springframework.web.bind.annotation.*;
 
 import java.rmi.MarshalledObject;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class MovieController {
 
     @Autowired
     private MovieService movieService;
+
+    @Autowired
+    private MovieRepository movieRepository;
 
     @GetMapping("/api/movies")
     public ResponseEntity<Object> getAllMovies() {
@@ -30,6 +35,10 @@ public class MovieController {
     @PutMapping("/api/movies/{id}")
     public ResponseEntity<Object> updateMovie(@PathVariable("id") String id, @RequestBody Movie movie) {
         int movieId = Integer.parseInt(id);
+        Optional<Movie> movieOptional = movieRepository.findById(movieId);
+        if (!movieOptional.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
         movieService.updateMovie(movieId, movie);
         return new ResponseEntity<>("Movie updated successfully", HttpStatus.OK);
     }
