@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MovieService {
@@ -30,6 +31,7 @@ public class MovieService {
     }
 
     public void updateMovie(int id, Movie movie) {
+        movie.setId(id);
         movieRepository.save(movie);
     }
 
