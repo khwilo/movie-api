@@ -14,7 +14,7 @@ public class Movie {
     private String title;
     private String description;
     private int rating;
-    private String watched;
+    private boolean watched;
 
 
     public int getId() {
@@ -49,11 +49,11 @@ public class Movie {
         this.rating = rating;
     }
 
-    public String getWatched() {
+    public boolean isWatched() {
         return watched;
     }
 
-    public void setWatched(String watched) {
+    public void setWatched(boolean watched) {
         this.watched = watched;
     }
 }
