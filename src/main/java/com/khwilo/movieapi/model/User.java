@@ -1,26 +1,58 @@
 package com.khwilo.movieapi.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import org.hibernate.annotations.NaturalId;
+
+import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 @Entity
+@Table(name = "users")
 public class User {
 
     @Id
-    @GeneratedValue
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NotBlank
+    @Size(max = 40)
     private String firstName;
+
+    @NotBlank
+    @Size(max = 40)
     private String lastName;
+
+    @NotBlank
+    @Size(max = 20)
     private String userName;
+
+    @NaturalId
+    @NotBlank
+    @Size(max = 40)
+    @Email
     private String emailAddress;
+
+    @NotBlank
+    @Size(max = 100)
     private String password;
 
-    public int getId() {
+    public User() {
+    }
+
+    public User(String firstName, String lastName, String userName, String emailAddress, String password) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.userName = userName;
+        this.emailAddress = emailAddress;
+        this.password = password;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
