@@ -1,57 +1,57 @@
 package com.khwilo.movieapi.controller;
 
-import com.khwilo.movieapi.auth.JwtTokenProvider;
 import com.khwilo.movieapi.dao.UserRepository;
-import com.khwilo.movieapi.model.User;
-import com.khwilo.movieapi.model.UserLogin;
+import com.khwilo.movieapi.payload.ApiResponse;
 import com.khwilo.movieapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 @RestController
+@RequestMapping("/api/v1/users")
 public class UserController {
-
     @Autowired
     UserService userService;
 
     @Autowired
     UserRepository userRepository;
 
-    @Autowired
-    JwtTokenProvider jwtTokenProvider;
-
-    @GetMapping("/users")
+    @GetMapping("/")
     public ResponseEntity<Object> getAllUsers() {
+        if (userService.getAllUsers().isEmpty()) {
+            return new ResponseEntity<>(
+                    new ApiResponse(false, "There exists no users!"),
+                    HttpStatus.NOT_FOUND
+            );
+        }
         return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
     }
 
-    @GetMapping("/users/{id}")
-    public ResponseEntity<Object> getUserById(@PathVariable("id") int id) {
-        return new ResponseEntity<>(userService.getUserById(id), HttpStatus.OK);
-    }
-
-    @PostMapping("/auth/register")
-    public ResponseEntity<Object> saveUser(@RequestBody User user) {
-        userService.save(user);
-        return new ResponseEntity<>("You have registered successfully", HttpStatus.CREATED);
-    }
-
-    @PostMapping("/auth/login")
-    public ResponseEntity<?> loginUser(@RequestBody UserLogin userLogin) {
-        String userName = userLogin.getUserName();
-        User user = userRepository.findUserByUserName(userName);
-        if (user.getUserName() != userName) {
-            return ResponseEntity.notFound().build();
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> getUserById(@PathVariable("id") String id) {
+        Long userId = Long.parseLong(id);
+        if (!userRepository.existsUserById(userId)) {
+            return new ResponseEntity<>(
+                    new ApiResponse(false, "User with id '" + id + "' not found!"),
+                    HttpStatus.NOT_FOUND
+            );
         }
-        return new ResponseEntity<>("You have successfully logged in", HttpStatus.OK);
+        return new ResponseEntity<>(userService.getUserById(userId), HttpStatus.OK);
     }
 
-    @DeleteMapping("/users/{id}")
-    public ResponseEntity<Object> removeUser(@PathVariable("id") int id) {
-        userService.delete(id);
-        return new ResponseEntity<>("User has been removed successfully", HttpStatus.OK);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> removeUser(@PathVariable("id") String id) {
+        Long userId = Long.parseLong(id);
+        if (!userRepository.existsUserById(userId)) {
+            return new ResponseEntity<>(
+                    new ApiResponse(
+                            false, "Cannot delete user with id '" + id + "' since it doesn't exist!"
+                    ),
+                    HttpStatus.NOT_FOUND
+            );
+        }
+        return new ResponseEntity<>("User has been successfully removed!", HttpStatus.OK);
     }
+
 }
