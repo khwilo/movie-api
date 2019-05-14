@@ -1,10 +1,8 @@
-package com.khwilo.movieapi.auth;
+package com.khwilo.movieapi.security;
 
-import com.khwilo.movieapi.constants.SecurityConstants;
-import com.khwilo.movieapi.model.User;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,20 +19,47 @@ public class JwtTokenProvider {
     @Value("${app.jwtSecretKey}")
     private String jwtSecretKey;
 
+    @Value("${app.jwtExpirationInMs}")
+    private int jwtExpirationInMs;
+
     public String generateToken(Authentication authentication) {
-        User user = ((User) authentication.getPrincipal());
-        byte[] signingKey = SecurityConstants.JWT_SECRET_KEY.getBytes();
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
+        byte[] signingKey = jwtSecretKey.getBytes();
 
-        String token = Jwts.builder()
+        return Jwts.builder()
+                .setSubject(Long.toString(userPrincipal.getId()))
+                .setIssuedAt(new Date())
+                .setExpiration(expiryDate)
                 .signWith(Keys.hmacShaKeyFor(signingKey), SignatureAlgorithm.HS256)
-                .setHeaderParam("type", SecurityConstants.TOKEN_TYPE)
-                .setIssuer(SecurityConstants.TOKEN_ISSUER)
-                .setAudience(SecurityConstants.TOKEN_AUDIENCE)
-                .setSubject(user.getUserName())
-                .setExpiration(new Date(System.currentTimeMillis() + 864000000))
                 .compact();
+    }
 
-        return token;
+    public Long getUserIdFromJwt(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(jwtSecretKey)
+                .parseClaimsJws(token)
+                .getBody();
 
+        return Long.parseLong(claims.getSubject());
+    }
+
+    public boolean validateToken(String authToken) {
+        try {
+            Jwts.parser().setSigningKey(jwtSecretKey).parseClaimsJws(authToken);
+            return true;
+        } catch (SignatureException ex) {
+            logger.error("Invalid JWT signature");
+        } catch (MalformedJwtException ex) {
+            logger.error("Invalid JWT signature");
+        } catch (ExpiredJwtException ex) {
+            logger.error("Expired JWT signature");
+        } catch (UnsupportedJwtException ex) {
+            logger.error("Unsupported JWT signature");
+        } catch (IllegalArgumentException ex) {
+            logger.error("JWT claims string is empty");
+        }
+        return false;
     }
 }
