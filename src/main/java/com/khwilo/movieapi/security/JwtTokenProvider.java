@@ -1,7 +1,7 @@
 package com.khwilo.movieapi.security;
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.impl.TextCodec;
 import io.jsonwebtoken.security.SignatureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,13 +26,12 @@ public class JwtTokenProvider {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
-        byte[] signingKey = jwtSecretKey.getBytes();
 
         return Jwts.builder()
                 .setSubject(Long.toString(userPrincipal.getId()))
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
-                .signWith(Keys.hmacShaKeyFor(signingKey), SignatureAlgorithm.HS256)
+                .signWith(SignatureAlgorithm.HS256, TextCodec.BASE64.decode(jwtSecretKey))
                 .compact();
     }
 
