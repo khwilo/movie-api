@@ -6,8 +6,10 @@ Movie review API where users can review various movies and series that one has w
 
 ## API ENDPOINTS
 
-- `/api/v1/auth/register` - **Register a user**
-- `/api/v1/auth/login` - **Login a user**
+- _POST_ `/api/v1/auth/register` - **Register a user**
+- _POST_ `/api/v1/auth/login` - **Login a user**
+- _GET_ `/api/v1/users` - **Fetch all existing users**
+- _GET_ `/api/v1/users/{id}` - **Fetch one existing user**
 
 ## USAGE
 
