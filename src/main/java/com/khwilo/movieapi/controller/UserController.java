@@ -17,7 +17,7 @@ public class UserController {
     @Autowired
     UserRepository userRepository;
 
-    @GetMapping("/")
+    @GetMapping()
     public ResponseEntity<Object> getAllUsers() {
         if (userService.getAllUsers().isEmpty()) {
             return new ResponseEntity<>(
