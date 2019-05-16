@@ -20,6 +20,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
@@ -29,6 +30,7 @@ import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class UserAuthenticationTests {
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -79,5 +81,45 @@ public class UserAuthenticationTests {
         assertEquals(response.getStatusLine().getStatusCode(), 201);
         assertEquals(result.get("success").getAsBoolean(), true);
         assertEquals(result.get("message").getAsString(), "You have successfully signed up!");
+    }
+
+    @Test
+    public void givenUserDoesExist_whenAUserLogsIn_then200IsCreated() throws ClientProtocolException, IOException {
+        JsonObject userRegistration = new JsonObject();
+        userRegistration.addProperty("firstName", "jane");
+        userRegistration.addProperty("lastName", "doez");
+        userRegistration.addProperty("userName", "januq");
+        userRegistration.addProperty("emailAddress", "jan@gmail.com");
+        userRegistration.addProperty("password", "#45ercaa12sa");
+
+        String userDetailsJson = userRegistration.toString();
+
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpPost httpPost = new  HttpPost("http://localhost:3000/api/v1/auth/register");
+        StringEntity entity = new StringEntity(userDetailsJson);
+        httpPost.setEntity(entity);
+        httpPost.setHeader("Accept", "application/json");
+        httpPost.setHeader("Content-type", "application/json");
+
+        client.execute(httpPost);
+
+        JsonObject userLogin = new JsonObject();
+        userLogin.addProperty("usernameOrEmail", "januq");
+        userLogin.addProperty("password", "#45ercaa12sa");
+        String userLoginJson = userLogin.toString();
+
+        CloseableHttpClient loginClient = HttpClients.createDefault();
+        HttpPost login = new HttpPost("http://localhost:3000/api/v1/auth/login");
+        StringEntity loginEntity = new StringEntity(userLoginJson);
+        login.setEntity(loginEntity);
+        login.setHeader("Accept", "application/json");
+        login.setHeader("Content-type", "application/json");
+
+        CloseableHttpResponse loginResponse = loginClient.execute(login);
+
+        HttpEntity loginResponseEntity = loginResponse.getEntity();
+        JsonObject result = (JsonObject) new JsonParser().parse(EntityUtils.toString(loginResponseEntity));
+        assertEquals(loginResponse.getStatusLine().getStatusCode(), 200);
+        assertEquals(result.get("tokenPrefix").getAsString(), "Bearer ");
     }
 }
