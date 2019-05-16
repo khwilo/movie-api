@@ -10,4 +10,5 @@ before_script:
 script:
   - mvn clean test
 after_script:
+  - mvn jacoco:report
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
