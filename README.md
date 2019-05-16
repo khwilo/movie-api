@@ -1,6 +1,6 @@
 # Movie Review API
 
-[![Build Status](https://travis-ci.org/khwilo/movie-api.svg?branch=master)](https://travis-ci.org/khwilo/movie-api)
+[![Build Status](https://travis-ci.org/khwilo/movie-api.svg?branch=master)](https://travis-ci.org/khwilo/movie-api) [![Maintainability](https://api.codeclimate.com/v1/badges/3ac86dae866027052d5d/maintainability)](https://codeclimate.com/github/khwilo/movie-api/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/3ac86dae866027052d5d/test_coverage)](https://codeclimate.com/github/khwilo/movie-api/test_coverage)
 
 Movie review API where users can review various movies and series that one has watched.
 
