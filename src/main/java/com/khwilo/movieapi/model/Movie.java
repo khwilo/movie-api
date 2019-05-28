@@ -1,27 +1,41 @@
 package com.khwilo.movieapi.model;
 
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
+@Table(name = "movies")
 public class Movie {
 
     @Id
-    @GeneratedValue
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NotNull
     private String title;
+
+    @NotNull
     private String description;
+
+    @Column(columnDefinition = "integer default 0")
     private int rating;
+
+    @Column(columnDefinition = "boolean default false")
     private boolean watched;
 
+    public Movie() {
+    }
 
-    public int getId() {
+    public Movie(String title, String description) {
+        this.title = title;
+        this.description = description;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
